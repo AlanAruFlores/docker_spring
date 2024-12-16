@@ -1,0 +1,43 @@
+#version: "3.9"
+#Contenedores que vamos a usar
+services:
+  spring-api-imagen:
+    image: spring-api-imagen #imagen desde donde se va a instanciar
+
+    #El build indica que construira la imagen por mi , y luego el contenedor.
+    build:
+      context: . # . representa misma ruta donde se ubica el dockerfile
+      dockerfile: Dockerfile # nombre del docker file
+
+    container_name: spring-api-contenedor
+    ports:
+      - "8080:8080" #aca decimos q va a mapear el puerto 8080 de mi computadora con el del contenedor
+    networks: #Desde que red va a estar trabajando el contenedor
+      - spring-network
+
+    #Indicamos que este contenedor depende de que primero se levante el contenedor de mysql
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql
+    container_name: mysql_database #host del nombre de la base de datos
+    environment:
+      MYSQL_DATABASE: dockerDB
+      MYSQL_ROOT_PASSWORD:
+      #Creamos un usuario con todos los privilegios para evitar el uso del root user (opcional)
+      MYSQL_USER: alan
+      MYSQL_PASSWORD: pachan242
+    ports:
+      - "3308:3307"
+    networks:
+      - spring-network
+    volumes: #volume que va a utilizar
+      - mysql-volumes:/var/lib/mysql #donde va a guardar la informacion
+#Se usa para conectar nuestros conectedores en una misma red, puedes ponerle un nombre cualquiera
+networks:
+  spring-network:
+
+# Se usa para persistir datos en una base de datos, en este caso mysql.
+volumes:
+  mysql-volumes:
